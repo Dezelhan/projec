@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Мой профиль - Podrabotka</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        .profile-page {
+            padding: 10rem 0 5rem;
+            min-height: 100vh;
+        }
+
+        .profile-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .profile-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            color: #bb86fc;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .profile-header p {
+            color: #aaa;
+            font-size: 1.2rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .profile-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .profile-tab {
+            padding: 0.8rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .profile-tab:hover {
+            color: #bb86fc;
+            background: rgba(187, 134, 252, 0.05);
+        }
+
+        .profile-tab.active {
+            color: #bb86fc;
+            font-weight: 600;
+        }
+
+        .profile-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #bb86fc;
+        }
+
+        .profile-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+        }
+
+        .profile-sidebar {
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(187, 134, 252, 0.4);
+            border-radius: 16px;
+            padding: 2.5rem;
+            backdrop-filter: blur(10px);
+            height: fit-content;
+        }
+
+        .profile-avatar {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .avatar-circle {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, rgba(187, 134, 252, 0.2), rgba(187, 134, 252, 0.1));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            border: 3px solid #bb86fc;
+        }
+
+        .avatar-circle i {
+            font-size: 3.5rem;
+            color: #bb86fc;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-role {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: rgba(187, 134, 252, 0.15);
+            color: #bb86fc;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid rgba(187, 134, 252, 0.3);
+        }
+
+        .profile-menu {
+            margin-top: 2rem;
+        }
+
+        .profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem 0;
+            color: #ccc;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .profile-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .profile-menu a:hover, .profile-menu a.active {
+            color: #bb86fc;
+        }
+
+        .profile-menu a i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .profile-main {
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(187, 134, 252, 0.4);
+            border-radius: 16px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+            min-height: 500px;
+        }
+
+        .profile-tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .profile-tab-content.active {
+            display: block;
+        }
+
+        .profile-section {
+            margin-bottom: 3rem;
+        }
+
+        .profile-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .profile-section h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.8rem;
+            color: #bb86fc;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid rgba(187, 134, 252, 0.3);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-label {
+            color: #aaa;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .info-value {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #bb86fc;
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #bb86fc;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #aaa;
+            font-size: 0.95rem;
+        }
+
+        .btn-logout-profile {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 87, 87, 0.1);
+            border: 2px solid #ff5757;
+            color: #ff5757;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.4s ease;
+            margin-top: 2rem;
+        }
+
+        .btn-logout-profile:hover {
+            background: #ff5757;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 87, 87, 0.3);
+        }
+
+        .applications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .application-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .application-item:hover {
+            border-color: #bb86fc;
+            transform: translateY(-2px);
+        }
+
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .application-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .application-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-new {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+            border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+
+        .status-active {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status-completed {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9e9e9e;
+            border: 1px solid rgba(158, 158, 158, 0.3);
+        }
+
+        .application-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .application-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #aaa;
+        }
+
+        .application-detail i {
+            color: #bb86fc;
+        }
+
+        .application-message {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            color: #ccc;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .application-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: rgba(187, 134, 252, 0.1);
+            color: #bb86fc;
+            border: 1px solid rgba(187, 134, 252, 0.3);
+        }
+
+        .btn-edit:hover {
+            background: rgba(187, 134, 252, 0.2);
+        }
+
+        .btn-delete {
+            background: rgba(255, 87, 87, 0.1);
+            color: #ff5757;
+            border: 1px solid rgba(255, 87, 87, 0.3);
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 87, 87, 0.2);
+        }
+
+        .edit-form {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-save {
+            background: rgba(187, 134, 252, 0.2);
+            color: #bb86fc;
+            border: 2px solid #bb86fc;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            background: #bb86fc;
+            color: #000;
+        }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            border: 2px solid #666;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .profile-page {
+                padding: 8rem 0 3rem;
+            }
+
+            .profile-content {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .profile-main {
+                padding: 2rem;
+            }
+
+            .application-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn-save, .btn-cancel {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .application-details {
+                grid-template-columns: 1fr;
+            }
+
+            .application-actions {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-dark"></div>
+    <div class="grid-overlay"></div>
+
+    <header class="osnova-header">
+        <div class="container">
+            <a href="index.html" class="logotip">SparkGig</a>
+            <nav>
+                <a href="index.html">Главная</a>
+                <a href="jobs.html">Вакансии</a>
+                <a href="contact.html">Контакты</a>
+                <div class="user-menu-wrapper">
+                    <a href="profil.html" class="register-icon">
+                        <i class="fas fa-user-check"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="profile-page">
+        <div class="profile-container">
+            <div class="profile-header">
+                <h1>Мой профиль</h1>
+                <p>Управляйте вашей учетной записью и отслеживайте активность</p>
+            </div>
+
+            <div class="profile-tabs">
+                <button class="profile-tab active" onclick="switchProfileTab('info')">Личная информация</button>
+                <button class="profile-tab" onclick="switchProfileTab('applications')">Мои отклики</button>
+                <button class="profile-tab" onclick="switchProfileTab('settings')">Настройки</button>
+            </div>
+
+            <div class="profile-content">
+                <aside class="profile-sidebar">
+                    <div class="profile-avatar">
+                        <div class="avatar-circle">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="profile-name" id="profileUserName">Иван Петров</div>
+                        <div class="profile-role" id="profileUserRole">Искатель работы</div>
+                    </div>
+
+                    <div class="profile-menu">
+                        <a href="#" onclick="switchProfileTab('info')" class="active">
+                            <i class="fas fa-user"></i>
+                            <span>Личная информация</span>
+                        </a>
+                        <a href="#" onclick="switchProfileTab('applications')">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Мои отклики</span>
+                        </a>
+                        <a href="#" onclick="switchProfileTab('settings')">
+                            <i class="fas fa-cog"></i>
+                            <span>Настройки</span>
+                        </a>
+                        <a href="my-jobs.html" id="employerJobsLinkProfile" style="display: none;">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Мои вакансии</span>
+                        </a>
+                    </div>
+
+                    <button class="btn-logout-profile" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Выйти из аккаунта
+                    </button>
+                </aside>
+
+                <div class="profile-main">
+                    <div id="tab-info" class="profile-tab-content active">
+                        <section class="profile-section">
+                            <div class="info-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                                <h2>Личная информация</h2>
+                                <button class="btn-edit" onclick="openEditModal()">
+                                    <i class="fas fa-edit"></i>
+                                    Редактировать
+                                </button>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">Имя</span>
+                                    <div class="info-value" id="infoName">Иван Петров</div>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Email</span>
+                                    <div class="info-value" id="infoEmail">jobseeker@example.com</div>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Телефон</span>
+                                    <div class="info-value" id="infoPhone">+7 (999) 123-45-67</div>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Роль</span>
+                                    <div class="info-value">
+                                        <span class="profile-role" id="infoRole">Искатель работы</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Дата регистрации</span>
+                                    <div class="info-value" id="infoRegistered">15.01.2024</div>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Статус аккаунта</span>
+                                    <div class="info-value" id="infoStatus">Активный</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="profile-section">
+                            <h2>Статистика</h2>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-number" id="statApplications">0</div>
+                                    <div class="stat-label">Откликов</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" id="statActive">0</div>
+                                    <div class="stat-label">Активных</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" id="statCompleted">0</div>
+                                    <div class="stat-label">Завершённых</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" id="statDays">0</div>
+                                    <div class="stat-label">Дней с нами</div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div id="tab-applications" class="profile-tab-content">
+                        <section class="profile-section">
+                            <h2>Мои отклики</h2>
+                            <div class="applications-list" id="applicationsList">
+                                <div class="no-applications" style="text-align: center; padding: 3rem; color: #888;">
+                                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                                    <h3>Откликов пока нет</h3>
+                                    <p>Откликнитесь на вакансию, чтобы она появилась здесь</p>
+                                    <a href="jobs.html" class="btn btn-knopka" style="margin-top: 1rem;">Найти вакансии</a>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div id="tab-settings" class="profile-tab-content">
+                        <section class="profile-section">
+                            <h2>Настройки аккаунта</h2>
+                            <div class="edit-form">
+                                <h3 style="color: #fff; margin-bottom: 1.5rem;">Изменить контактные данные</h3>
+
+                                <div class="form-group">
+                                    <label for="editName">Имя</label>
+                                    <input type="text" id="editName" placeholder="Введите ваше имя" class="form-input">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="editPhone">Телефон</label>
+                                    <input type="tel" id="editPhone" placeholder="+7 (999) 123-45-67" class="form-input">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="editCompany">Компания (для работодателей)</label>
+                                    <input type="text" id="editCompany" placeholder="Название компании" class="form-input">
+                                </div>
+
+                                <div class="form-actions">
+                                    <button class="btn-save" onclick="saveProfileChanges()">
+                                        Сохранить изменения
+                                    </button>
+                                    <button class="btn-cancel" onclick="cancelProfileChanges()">
+                                        Отмена
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="profile-section">
+                            <h2>Уведомления</h2>
+                            <div class="info-item" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div class="info-value">Email-уведомления</div>
+                                    <div class="info-label">Получать уведомления о новых вакансиях</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="info-item" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div class="info-value">Telegram-уведомления</div>
+                                    <div class="info-label">Уведомления в Telegram</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const currentUser = await getCurrentUser();
+
+            if (!currentUser) {
+                showNotification('Для доступа к профилю необходимо войти в систему', 'warning');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+                return;
+            }
+
+            loadProfilePageInfo();
+
+            // Показываем ссылку для работодателей
+            if (currentUser.role === 'employer') {
+                document.getElementById('employerJobsLinkProfile').style.display = 'flex';
+            }
+        });
+
+        function switchProfileTab(tabName) {
+            document.querySelectorAll('.profile-tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            document.querySelectorAll('.profile-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.querySelectorAll('.profile-menu a').forEach(link => {
+                link.classList.remove('active');
+                if (link.textContent.includes(getTabDisplayName(tabName))) {
+                    link.classList.add('active');
+                }
+            });
+
+            if (tabName === 'applications') {
+                loadApplications();
+            }
+
+            if (tabName === 'settings') {
+                loadSettingsData();
+            }
+        }
+
+        function getTabDisplayName(tabName) {
+            const names = {
+                'info': 'Личная информация',
+                'applications': 'Мои отклики',
+                'settings': 'Настройки'
+            };
+            return names[tabName] || tabName;
+        }
+
+        async function loadProfilePageInfo() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            document.getElementById('profileUserName').textContent = user.name || 'Не указано';
+            document.getElementById('profileUserRole').textContent = user.role === 'employer' ? 'Работодатель' : 'Искатель работы';
+
+            document.getElementById('infoName').textContent = user.name || 'Не указано';
+            document.getElementById('infoEmail').textContent = user.email;
+            document.getElementById('infoPhone').textContent = user.phone || 'Не указан';
+            document.getElementById('infoRole').textContent = user.role === 'employer' ? 'Работодатель' : 'Искатель работы';
+            document.getElementById('infoRegistered').textContent = formatDate(user.registeredAt || new Date().toISOString());
+            document.getElementById('infoStatus').textContent = user.isAdmin ? 'Администратор' : 'Активный';
+
+            // Загружаем отклики из базы данных (только для искателей работы)
+            if (user.role !== 'employer') {
+                const userApplications = await getUserApplications();
+
+                document.getElementById('statApplications').textContent = userApplications.length;
+                document.getElementById('statActive').textContent = userApplications.filter(app => app.status === 'new' || app.status === 'active').length;
+                document.getElementById('statCompleted').textContent = userApplications.filter(app => app.status === 'completed').length;
+            } else {
+                // Для работодателей статистика откликов не нужна
+                document.getElementById('statApplications').textContent = '0';
+                document.getElementById('statActive').textContent = '0';
+                document.getElementById('statCompleted').textContent = '0';
+            }
+
+            if (user.registeredAt) {
+                const registeredDate = new Date(user.registeredAt);
+                const today = new Date();
+                const diffTime = Math.abs(today - registeredDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                document.getElementById('statDays').textContent = diffDays;
+            }
+
+            document.getElementById('editName').value = user.name || '';
+            document.getElementById('editPhone').value = user.phone || '';
+            document.getElementById('editCompany').value = user.company || '';
+        }
+
+        async function loadApplications() {
+            console.log('loadApplications: начало загрузки откликов');
+            const applications = await getUserApplications();
+            console.log('loadApplications: получено откликов', applications.length);
+            const container = document.getElementById('applicationsList');
+            
+            if (!container) {
+                console.error('loadApplications: контейнер не найден');
+                return;
+            }
+
+            if (applications.length === 0) {
+                container.innerHTML = `
+                    <div class="no-applications" style="text-align: center; padding: 3rem; color: #888;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <h3>Откликов пока нет</h3>
+                        <p>Откликнитесь на вакансию, чтобы она появилась здесь</p>
+                        <a href="jobs.html" class="btn btn-knopka" style="margin-top: 1rem;">Найти вакансии</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            applications.forEach(app => {
+                const statusClass = getStatusClass(app.status);
+                const statusText = getStatusText(app.status);
+
+                html += `
+                    <div class="application-item">
+                        <div class="application-header">
+                            <div class="application-title">${app.jobTitle}</div>
+                            <div class="application-status ${statusClass}">${statusText}</div>
+                        </div>
+
+                        <div class="application-details">
+                            <div class="application-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>${app.location}</span>
+                            </div>
+                            <div class="application-detail">
+                                <i class="fas fa-ruble-sign"></i>
+                                <span>${app.salary}</span>
+                            </div>
+                            <div class="application-detail">
+                                <i class="fas fa-calendar"></i>
+                                <span>${formatDate(app.createdAt)}</span>
+                            </div>
+                        </div>
+
+                        ${app.message ? `
+                        <div class="application-message">
+                            <strong>Ваше сообщение:</strong><br>
+                            ${app.message}
+                        </div>
+                        ` : ''}
+
+                        <div class="application-actions">
+                            <button class="btn-action btn-edit" onclick="editApplication(${app.id})">
+                                <i class="fas fa-edit"></i> Редактировать
+                            </button>
+                            <button class="btn-action btn-delete" onclick="deleteApplicationConfirmation(${app.id})">
+                                <i class="fas fa-trash"></i> Удалить
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'new': return 'status-new';
+                case 'active': return 'status-active';
+                case 'completed': return 'status-completed';
+                default: return 'status-new';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'new': return 'Новый';
+                case 'active': return 'Активный';
+                case 'completed': return 'Завершён';
+                default: return 'Новый';
+            }
+        }
+
+        function openEditModal() {
+            const user = getCurrentUser();
+            const name = prompt('Введите новое имя:', user.name || '');
+            const phone = prompt('Введите новый телефон:', user.phone || '');
+            const company = prompt('Введите компанию:', user.company || '');
+
+            if (name !== null) {
+                if (updateProfile(name, phone, company)) {
+                    showNotification('Профиль успешно обновлен!', 'success');
+                    loadProfilePageInfo();
+                } else {
+                    showNotification('Ошибка при обновлении профиля', 'error');
+                }
+            }
+        }
+
+        function saveProfileChanges() {
+            const name = document.getElementById('editName').value.trim();
+            const phone = document.getElementById('editPhone').value.trim();
+            const company = document.getElementById('editCompany').value.trim();
+
+            if (updateProfile(name, phone, company)) {
+                showNotification('Профиль успешно обновлен!', 'success');
+                loadProfilePageInfo();
+                switchProfileTab('info');
+            } else {
+                showNotification('Ошибка при обновлении профиля', 'error');
+            }
+        }
+
+        function cancelProfileChanges() {
+            switchProfileTab('info');
+        }
+
+        function editApplication(applicationId) {
+            const applications = JSON.parse(localStorage.getItem('podrabotka_applications')) || [];
+            const application = applications.find(app => app.id === applicationId);
+
+            if (application) {
+                const newMessage = prompt('Редактируйте ваше сопроводительное сообщение:', application.message);
+                if (newMessage !== null) {
+                    application.message = newMessage;
+                    localStorage.setItem('podrabotka_applications', JSON.stringify(applications));
+                    showNotification('Отклик обновлен!', 'success');
+                    loadApplications();
+                }
+            }
+        }
+
+        async function deleteApplicationConfirmation(applicationId) {
+            if (confirm('Вы уверены, что хотите удалить этот отклик?')) {
+                const result = await deleteApplication(applicationId);
+                if (result) {
+                    showNotification('Отклик удален!', 'success');
+                    await loadApplications();
+                    // Обновляем статистику в профиле
+                    await loadProfilePageInfo();
+                } else {
+                    showNotification('Ошибка при удалении отклика', 'error');
+                }
+            }
+        }
+
+        function loadSettingsData() {
+            const user = getCurrentUser();
+            if (!user) return;
+
+            document.getElementById('editName').value = user.name || '';
+            document.getElementById('editPhone').value = user.phone || '';
+            document.getElementById('editCompany').value = user.company || '';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Вакансии - Podrabotka</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="bg-dark"></div>
+    <div class="grid-overlay"></div>
+
+    <header class="osnova-header">
+      <div class="container">
+        <a href="index.html" class="logotip">SparkGig</a>
+        <nav>
+          <a href="index.html">Главная</a>
+          <a href="jobs.html" class="active">Вакансии</a>
+          <a href="contact.html">Контакты</a>
+          <div class="user-menu-wrapper">
+            <a
+              href="#"
+              class="register-icon"
+              id="userMenuToggle"
+              aria-label="Аккаунт"
+            >
+              <i class="fas fa-user-circle"></i>
+            </a>
+            <div class="user-dropdown" id="userDropdown">
+              <div id="guestMenu">
+                <a href="login.html">Войти</a>
+                <a href="register.html">Регистрация</a>
+              </div>
+              <div id="userMenu" style="display: none">
+                <div class="user-info">
+                  <span id="userEmail"></span>
+                  <small id="userRole"></small>
+                </div>
+                <a href="profil.html">Профиль</a>
+                <a
+                  href="my-jobs.html"
+                  id="employerLinkJobs"
+                  style="display: none"
+                  >Мои вакансии</a
+                >
+                <a href="#" onclick="logout()">Выйти</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="jobs-page">
+      <div class="container">
+        <h1 class="page-zagolovok animate-on-scroll">Доступные вакансии</h1>
+        <p class="page-podzagolovok animate-on-scroll" data-delay="0.5s">
+          Найди подработку за 5 минут — без опыта, с обучением
+        </p>
+
+        <div
+          class="jobs-actions"
+          style="display: flex; justify-content: flex-end; margin-bottom: 3rem"
+        >
+          <button
+            class="btn-create-new"
+            id="createJobBtnJobs"
+            style="
+              display: none;
+              padding: 0.8rem 1.5rem;
+              background: rgba(255, 193, 7, 0.1);
+              border: 2px solid #ffc107;
+              color: #ffc107;
+              border-radius: 8px;
+              cursor: pointer;
+            "
+            onclick="window.location.href = 'create-job.html'"
+          >
+            <i class="fas fa-plus"></i> Разместить вакансию
+          </button>
+        </div>
+
+        <div class="jobs-korobka" id="jobsContainer"></div>
+      </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", async function () {
+        const user = await getCurrentUser();
+
+        if (user && user.role === "employer") {
+          document.getElementById("createJobBtnJobs").style.display = "block";
+          document.getElementById("employerLinkJobs").style.display = "block";
+        }
+
+        await loadAllJobs();
+        initAnimations();
+      });
+
+      async function loadAllJobs() {
+        const container = document.getElementById("jobsContainer");
+
+        // Загружаем вакансии из базы данных
+        let jobs = [];
+        try {
+          const response = await fetch("api/jobs.php", {
+            method: "GET",
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              jobs = data.jobs || [];
+              // Сохраняем в localStorage для совместимости
+              localStorage.setItem("podrabotka_jobs", JSON.stringify(jobs));
+            }
+          }
+        } catch (error) {
+          console.error("Ошибка загрузки вакансий:", error);
+          // Fallback на localStorage если API недоступен
+          jobs = JSON.parse(localStorage.getItem("podrabotka_jobs")) || [];
+        }
+
+        if (jobs.length === 0) {
+          container.innerHTML = `
+                    <div class="cards-jobs animate-on-scroll" data-delay="0.4s" data-job="Бариста в кофейню" data-place="Центр" data-salary="45 000 руб." onclick="openModal(this)">
+                        <h3>Бариста в кофейню</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Центр</p>
+                        <p><i class="fas fa-ruble-sign"></i> 45 000 руб.</p>
+                        <p>Гибкий график, обучение, кофе в подарок.</p>
+                        <span class="strelka">→</span>
+                    </div>
+
+                    <div class="cards-jobs animate-on-scroll" data-delay="0.6s" data-job="Курьер на велосипеде" data-place="Левобережный" data-salary="60 000 руб." onclick="openModal(this)">
+                        <h3>Курьер на велосипеде</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Левобережный</p>
+                        <p><i class="fas fa-ruble-sign"></i> 60 000 руб.</p>
+                        <p>Велосипед можно взять у нас. Оплата ежедневно.</p>
+                        <span class="strelka">→</span>
+                    </div>
+
+                    <div class="cards-jobs animate-on-scroll" data-delay="0.8s" data-job="Модератор чатов" data-place="Удалённо" data-salary="40 000 руб." onclick="openModal(this)">
+                        <h3>Модератор чатов</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Удалённо</p>
+                        <p><i class="fas fa-ruble-sign"></i> 40 000 руб.</p>
+                        <p>Работа из дома. Обучим за 3 дня.</p>
+                        <span class="strelka">→</span>
+                    </div>
+
+                    <div class="cards-jobs animate-on-scroll" data-delay="1s" data-job="Промоутер в ТЦ" data-place="Город" data-salary="50 000 руб." onclick="openModal(this)">
+                        <h3>Промоутер в ТЦ</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Город</p>
+                        <p><i class="fas fa-ruble-sign"></i> 50 000 руб.</p>
+                        <p>Раздача листовок, встречи с клиентами.</p>
+                        <span class="strelka">→</span>
+                    </div>
+
+                    <div class="cards-jobs animate-on-scroll" data-delay="1.2s" data-job="Тестировщик приложений" data-place="Удалённо" data-salary="35 000 руб." onclick="openModal(this)">
+                        <h3>Тестировщик приложений</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Удалённо</p>
+                        <p><i class="fas fa-ruble-sign"></i> 35 000 руб.</p>
+                        <p>Без опыта. Платим за найденные баги.</p>
+                        <span class="strelka">→</span>
+                    </div>
+
+                    <div class="cards-jobs animate-on-scroll" data-delay="1.4s" data-job="Комплектовщик на склад" data-place="Окраина" data-salary="55 000 руб." onclick="openModal(this)">
+                        <h3>Комплектовщик на склад</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Окраина</p>
+                        <p><i class="fas fa-ruble-sign"></i> 55 000 руб.</p>
+                        <p>Физическая работа. Есть развозка после смены.</p>
+                        <span class="strelka">→</span>
+                    </div>
+
+                    <div class="cards-jobs animate-on-scroll" data-delay="1.6s" data-job="Оператор call-центра" data-place="Удалённо" data-salary="42 000 руб." onclick="openModal(this)">
+                        <h3>Оператор call-центра</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Удалённо</p>
+                        <p><i class="fas fa-ruble-sign"></i> 42 000 руб.</p>
+                        <p>Работа с клиентами по телефону. Обучение бесплатно.</p>
+                        <span class="strelka">→</span>
+                    </div>
+
+                    <div class="cards-jobs animate-on-scroll" data-delay="1.8s" data-job="Грузчик в магазин" data-place="Район Павлино" data-salary="58 000 руб." onclick="openModal(this)">
+                        <h3>Грузчик в магазин</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Район Павлино</p>
+                        <p><i class="fas fa-ruble-sign"></i> 58 000 руб.</p>
+                        <p>Разгрузка, выкладка товара. Удобный график.</p>
+                        <span class="strelka">→</span>
+                    </div>
+
+                    <div class="cards-jobs animate-on-scroll" data-delay="2s" data-job="Сборщик заказов (Ozon, Wildberries)" data-place="Склад на окраине" data-salary="62 000 руб." onclick="openModal(this)">
+                        <h3>Сборщик заказов (Ozon, WB)</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Склад на окраине</p>
+                        <p><i class="fas fa-ruble-sign"></i> 62 000 руб.</p>
+                        <p>Формирование посылок. Работа в системе крупных маркетплейсов.</p>
+                        <span class="strelka">→</span>
+                    </div>
+
+                    <div class="cards-jobs animate-on-scroll" data-delay="2.2s" data-job="Фотограф на мероприятия" data-place="Город" data-salary="1 500 руб./смена" onclick="openModal(this)">
+                        <h3>Фотограф на мероприятия</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Город</p>
+                        <p><i class="fas fa-ruble-sign"></i> 1 500 руб./смена</p>
+                        <p>Съёмка вечеринок, свадеб, дней рождений. Своя техника приветствуется.</p>
+                        <span class="strelka">→</span>
+                    </div>
+
+                    <div class="cards-jobs animate-on-scroll" data-delay="2.4s" data-job="Уборщик в офис" data-place="Бизнес-центр 'Норд'" data-salary="47 000 руб." onclick="openModal(this)">
+                        <h3>Уборщик в офис</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> БЦ "Норд"</p>
+                        <p><i class="fas fa-ruble-sign"></i> 47 000 руб.</p>
+                        <p>Уборка помещений после рабочего дня. Инвентарь предоставим.</p>
+                        <span class="strelka">→</span>
+                    </div>
+
+                    <div class="cards-jobs animate-on-scroll" data-delay="2.6s" data-job="Аниматор на детские праздники" data-place="Центр" data-salary="2 000 руб./выход" onclick="openModal(this)">
+                        <h3>Аниматор на детские праздники</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Центр</p>
+                        <p><i class="fas fa-ruble-sign"></i> 2 000 руб./выход</p>
+                        <p>Весёлые программы, конкурсы, костюмы. Опыт приветствуется.</p>
+                        <span class="strelka">→</span>
+                    </div>
+                `;
+        } else {
+          let html = "";
+          jobs.forEach((job, index) => {
+            const delay = 0.4 + index * 0.2;
+            html += `
+                        <div class="cards-jobs animate-on-scroll" data-delay="${delay}s"
+                             data-job="${job.title}"
+                             data-place="${job.location}"
+                             data-salary="${job.salary}"
+                             data-job-id="${job.id}"
+                             onclick="openModal(this)">
+                            <h3>${job.title}</h3>
+                            <p><i class="fas fa-map-marker-alt"></i> ${job.location}</p>
+                            <p><i class="fas fa-ruble-sign"></i> ${job.salary}</p>
+                            <p>${job.description ? job.description.substring(0, 80) + "..." : "Описание отсутствует"}</p>
+                            <span class="strelka">→</span>
+                        </div>
+                    `;
+          });
+
+          container.innerHTML = html;
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Регистрация - Podrabotka</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        .register-page {
+            padding: 10rem 0 5rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .register-container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .register-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .register-title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: #bb86fc;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .register-title p {
+            color: #aaa;
+            font-size: 1.1rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .register-form-container {
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(187, 134, 252, 0.4);
+            border-radius: 16px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #aaa;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(187, 134, 252, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #bb86fc;
+            background: rgba(187, 134, 252, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(187, 134, 252, 0.25);
+        }
+
+        .user-type-section {
+            margin: 2.5rem 0;
+        }
+
+        .user-type-section h3 {
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .user-type-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .user-type-option {
+            cursor: pointer;
+        }
+
+        .user-type-option input[type="radio"] {
+            display: none;
+        }
+
+        .user-type-content {
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(187, 134, 252, 0.25);
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .user-type-option input[type="radio"]:checked + .user-type-content {
+            background: rgba(187, 134, 252, 0.15);
+            border-color: #bb86fc;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(187, 134, 252, 0.3);
+        }
+
+        .user-type-content i {
+            font-size: 2rem;
+            color: #bb86fc;
+            margin-bottom: 0.8rem;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .user-type-option input[type="radio"]:checked + .user-type-content i {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px rgba(187, 134, 252, 0.5));
+        }
+
+        .user-type-content span {
+            display: block;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .user-type-content small {
+            color: #aaa;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            display: block;
+        }
+
+        .user-type-option:hover .user-type-content {
+            border-color: rgba(187, 134, 252, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            margin: 2rem 0;
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .terms-checkbox label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: #aaa;
+            font-size: 0.95rem;
+            cursor: pointer;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .terms-checkbox input {
+            width: auto;
+            accent-color: #bb86fc;
+            transform: scale(1.3);
+            cursor: pointer;
+            margin-top: 0.2rem;
+            flex-shrink: 0;
+        }
+
+        .terms-checkbox a {
+            color: #bb86fc;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid transparent;
+        }
+
+        .terms-checkbox a:hover {
+            color: #fff;
+            border-bottom-color: #bb86fc;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 1.3rem;
+            background: linear-gradient(135deg, rgba(187, 134, 252, 0.2), rgba(187, 134, 252, 0.1));
+            border: 2px solid #bb86fc;
+            color: #bb86fc;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-register:hover {
+            color: #000;
+            background: #bb86fc;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(187, 134, 252, 0.4);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 2.5rem;
+            color: #888;
+            font-size: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .login-link a {
+            color: #bb86fc;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 8px;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: #fff;
+            border-bottom-color: #bb86fc;
+        }
+
+        @media (max-width: 768px) {
+            .register-page {
+                padding: 8rem 0 3rem;
+            }
+
+            .register-title h1 {
+                font-size: 2.5rem;
+            }
+
+            .register-form-container {
+                padding: 2rem;
+            }
+
+            .user-type-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-dark"></div>
+    <div class="grid-overlay"></div>
+
+    <header class="osnova-header">
+        <div class="container">
+            <a href="index.html" class="logotip">SparkGig</a>
+            <nav>
+                <a href="index.html">Главная</a>
+                <a href="jobs.html">Вакансии</a>
+                <a href="contact.html">Контакты</a>
+                <div class="user-menu-wrapper">
+                    <a href="login.html" class="register-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="register-page">
+        <div class="register-container">
+            <div class="register-title">
+                <h1>Создать аккаунт</h1>
+                <p>Начните искать подработку прямо сейчас</p>
+            </div>
+
+            <div class="register-form-container">
+                <form id="registerPageForm">
+                    <div class="form-group">
+                        <label for="registerName">Имя</label>
+                        <input type="text" id="registerName" placeholder="Введите ваше имя" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" placeholder="example@mail.ru" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerPassword">Пароль</label>
+                        <input type="password" id="registerPassword" placeholder="Минимум 5 символов" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerRepeatPassword">Повторите пароль</label>
+                        <input type="password" id="registerRepeatPassword" placeholder="Повторите пароль" required>
+                    </div>
+
+                    <div class="user-type-section">
+                        <h3>Выберите тип аккаунта:</h3>
+                        <div class="user-type-options">
+                            <label class="user-type-option">
+                                <input type="radio" name="userType" value="job_seeker" checked>
+                                <div class="user-type-content">
+                                    <i class="fas fa-user"></i>
+                                    <span>Ищу подработку</span>
+                                    <small>Откликайтесь на вакансии</small>
+                                </div>
+                            </label>
+                            <label class="user-type-option">
+                                <input type="radio" name="userType" value="employer">
+                                <div class="user-type-content">
+                                    <i class="fas fa-briefcase"></i>
+                                    <span>Я работодатель</span>
+                                    <small>Размещайте вакансии</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="terms-checkbox">
+                        <label>
+                            <input type="checkbox" id="termsAgree" required>
+                            <span>Я соглашаюсь с <a href="#">Условиями использования</a> и <a href="#">Политикой конфиденциальности</a></span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-register">Зарегистрироваться</button>
+
+                    <div class="login-link">
+                        <span>Уже есть аккаунт?</span>
+                        <a href="login.html">Войти</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const registerForm = document.getElementById('registerPageForm');
+
+            if (registerForm) {
+                registerForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const name = document.getElementById('registerName').value.trim();
+                    const email = document.getElementById('registerEmail').value.trim();
+                    const password = document.getElementById('registerPassword').value;
+                    const repeatPassword = document.getElementById('registerRepeatPassword').value;
+                    const userType = document.querySelector('input[name="userType"]:checked');
+                    const termsAgree = document.getElementById('termsAgree').checked;
+
+                    if (!name || !email || !password || !repeatPassword || !userType) {
+                        showNotification('Заполните все поля', 'error');
+                        return;
+                    }
+
+                    if (!termsAgree) {
+                        showNotification('Необходимо согласиться с условиями', 'error');
+                        return;
+                    }
+
+                    if (password.length < 5) {
+                        showNotification('Пароль должен быть не менее 5 символов', 'error');
+                        return;
+                    }
+
+                    if (password !== repeatPassword) {
+                        showNotification('Пароли не совпадают', 'error');
+                        return;
+                    }
+
+                    const registerSuccess = await registerUser(email, password, repeatPassword, userType.value, true, { name: name });
+                    if (registerSuccess) {
+                        showNotification('Регистрация успешна!', 'success');
+                        registerForm.reset();
+
+                        setTimeout(() => {
+                            window.location.href = 'profil.html';
+                        }, 1500);
+                    }
+                });
+            }
+
+            
+        });
+    </script>
+</body>
+</html>

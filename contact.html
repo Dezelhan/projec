@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Контакты - Podrabotka</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+    <div class="bg-dark"></div>
+    <div class="grid-overlay"></div>
+
+    <header class="osnova-header">
+    <div class="container">
+        <a href="index.html" class="logotip">SparkGig</a>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="jobs.html" >Вакансии</a> 
+            <a href="contact.html" class="active" >Контакты</a> 
+            <div class="user-menu-wrapper">
+                <a href="#" class="register-icon" id="userMenuToggle" aria-label="Аккаунт">
+                    <i class="fas fa-user-circle"></i>
+                </a>
+                <div class="user-dropdown" id="userDropdown">
+                    <div id="guestMenu">
+                        <a href="login.html">Войти</a>
+                        <a href="register.html">Регистрация</a>
+                    </div>
+                    <div id="userMenu" style="display: none;">
+                        <div class="user-info">
+                            <span id="userEmail"></span>
+                            <small id="userRole"></small>
+                        </div>
+                        <a href="profil.html">Профиль</a>
+                        <a href="my-jobs.html" id="employerLinkJobs" style="display: none;">Мои вакансии</a>
+                        <a href="#" onclick="logout()">Выйти</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <main class="contact-page">
+        <div class="container">
+            <h1 class="page-zagolovok animate-on-scroll">Свяжитесь с нами</h1>
+            <p class="page-podzagolovok animate-on-scroll" data-delay="0.5s">Мы онлайн 24/7 — отвечаем быстро</p>
+
+            <div class="contact-contact animate-on-scroll" data-delay="0.7s">
+                <div class="contact-socseti">
+                    <i class="fas fa-envelope contact-icon"></i>
+                    <h3>Email</h3>
+                    <p><a href="mailto:hello@podrabotka.ru">hello@podrabotka.ru</a></p>
+                    <span>Ответим в течение 2 часов</span>
+                </div>
+
+                <div class="contact-socseti">
+                    <i class="fab fa-telegram contact-icon"></i>
+                    <h3>Telegram</h3>
+                    <p><a href="https://t.me/podrabotka_support" target="_blank">@podrabotka_support</a></p>
+                    <span>Быстрый чат, без очереди</span>
+                </div>
+
+                <div class="contact-socseti">
+                    <i class="fab fa-whatsapp contact-icon"></i>
+                    <h3>WhatsApp</h3>
+                    <p><a href="https://wa.me/79123456789" target="_blank">+7 (912) 345-67-89</a></p>
+                    <span>Поддержка и отклики</span>
+                </div>
+
+                <div class="contact-socseti">
+                    <i class="fas fa-location-dot contact-icon"></i>
+                    <h3>Офис</h3>
+                    <p>г. Москва, Ленинградское ш., 15</p>
+                    <span>Ежедневно с 10:00 до 20:00</span>
+                </div>
+            </div>
+
+
+            <div class="contact-form animate-on-scroll" data-delay="1s">
+                <h2>Написать нам</h2>
+                <form onsubmit="submitContactForm(event)">
+                    <div class="form-group">
+                        <input type="text" placeholder="Ваше имя" required />
+                    </div>
+                    <div class="form-group">
+                        <input type="email" placeholder="Email или Telegram" required />
+                    </div>
+                    <div class="form-group">
+                        <textarea rows="5" placeholder="Сообщение" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Отправить</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+
+    <div class="auth-modal" id="authModal">
+        <div class="auth-modal-content">
+            <span class="auth-close" onclick="hideAuthModal()">&times;</span>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Вход</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Регистрация</button>
+            </div>
+
+
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="Пароль" required>
+                </div>
+                <div class="form-group remember-checkbox">
+                    <label>
+                        <input type="checkbox" id="rememberLogin">
+                        <span>Запомнить меня</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-auth">Войти</button>
+                <p class="auth-link">Нет аккаунта? <a href="#" onclick="switchAuthTab('register')">Зарегистрируйтесь</a></p>
+            </form>
+
+
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <input type="email" id="registerEmail" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="registerPassword" placeholder="Пароль (минимум 5 символов)" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="registerRepeatPassword" placeholder="Повторите пароль" required>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="user-type-selector">
+                        <h4>Выберите тип аккаунта:</h4>
+                        <div class="user-type-options">
+                            <label class="user-type-option">
+                                <input type="radio" name="userType" value="job_seeker" checked>
+                                <div class="user-type-content">
+                                    <i class="fas fa-user"></i>
+                                    <span>Ищу подработку</span>
+                                    <small>Откликаюсь на вакансии</small>
+                                </div>
+                            </label>
+                            <label class="user-type-option">
+                                <input type="radio" name="userType" value="employer">
+                                <div class="user-type-content">
+                                    <i class="fas fa-briefcase"></i>
+                                    <span>Я работодатель</span>
+                                    <small>Размещаю вакансии</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group remember-checkbox">
+                    <label>
+                        <input type="checkbox" id="rememberRegister">
+                        <span>Запомнить меня</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-auth">Зарегистрироваться</button>
+                <p class="auth-link">Уже есть аккаунт? <a href="#" onclick="switchAuthTab('login')">Войдите</a></p>
+            </form>
+
+            <div class="auth-footer">
+                <p>Нажимая кнопку, вы соглашаетесь с <a href="#">Условиями использования</a></p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-modal-content">
+            <span class="profile-close" onclick="hideProfileModal()">&times;</span>
+            <h2>Профиль</h2>
+            <div class="profile-info" id="profileInfo">
+
+            </div>
+            <button class="btn btn-logout" onclick="logout()">Выйти</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

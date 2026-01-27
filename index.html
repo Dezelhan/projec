@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Podrabotka - Найди подработку за 5 минут</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+    <div class="bg-dark"></div>
+    <div class="grid-overlay"></div>
+
+    <header class="osnova-header">
+        <div class="container">
+            <a href="index.html" class="logotip">SparkGig</a>
+            <nav>
+                <a href="index.html" class="active">Главная</a>
+                <a href="jobs.html">Вакансии</a>
+                <a href="contact.html" class="nective">Контакты</a>
+
+                <div class="user-menu-wrapper">
+                    <a href="#" class="register-icon" id="userMenuToggle" aria-label="Аккаунт">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <div class="user-dropdown" id="userDropdown">
+
+                        <div id="guestMenu">
+                            <a href="login.html">Войти</a>
+                            <a href="register.html">Регистрация</a>
+                        </div>
+
+                        <div id="userMenu" style="display: none;">
+                            <div class="user-info">
+                                <span id="userEmail"></span>
+                                <small id="userRole"></small>
+                            </div>
+                            <a href="profil.html">Профиль</a>
+                            <a href="my-jobs.html" id="employerLink" style="display: none;">Мои вакансии</a>
+                            <a href="#" onclick="logout()">Выйти</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-zagolovok animate-on-scroll">Работа рядом</h1>
+            <p class="hero-podzagolovok animate-on-scroll" data-delay="0.5s">Быстро. По-новому. Найди подработку за 5 минут.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="jobs.html" class="btn btn-knopka animate-on-scroll" data-delay="1s">Открыть вакансии</a>
+                <a href="create-job.html" id="createJobBtn" class="btn btn-knopka animate-on-scroll" data-delay="1.2s" style="display: none; background: rgba(255, 193, 7, 0.1); border-color: #ffc107; color: #ffc107;">
+                    Разместить вакансию
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="premushistva">
+        <div class="container">
+            <div class="premushistva-item animate-on-scroll" data-delay="0.3s">
+                <i class="fas fa-bolt feature-icon"></i>
+                <h3>Мгновенно</h3>
+                <p>Подбор за секунды. Отклик — в один клик.</p>
+            </div>
+            <div class="premushistva-item animate-on-scroll" data-delay="0.6s">
+                <i class="fas fa-wallet feature-icon"></i>
+                <h3>Оплата сразу</h3>
+                <p>Без задержек. Каждую неделю — на карту.</p>
+            </div>
+            <div class="premushistva-item animate-on-scroll" data-delay="0.9s">
+                <i class="fas fa-user-shield feature-icon"></i>
+                <h3>Без опыта</h3>
+                <p>Обучим. Работай с нуля и расти.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="jobs" class="sectionsjob">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll" data-delay="0.3s">Доступные вакансии</h2>
+            <div class="jobs-korobka" id="jobsContainer">
+            </div>
+        </div>
+    </section>
+
+    <section class="zaziv-klientov">
+        <div class="container">
+            <h2 class="animate-on-scroll" data-delay="0.3s">Готов начать?</h2>
+            <p class="animate-on-scroll" data-delay="0.5s">Присоединяйся к 10 000+ людям, которые уже нашли подработку.</p>
+            <a href="jobs.html" class="btn btn-knopka animate-on-scroll" data-delay="0.7s">Смотреть все вакансии</a>
+        </div>
+    </section>
+
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo animate-on-scroll" data-delay="0.3s">Podrabotka</div>
+                <p class="animate-on-scroll" data-delay="0.5s">© 2025 Все права защищены</p>
+                <div class="social" data-delay="0.7s">
+                    <a href="https://t.me/podrabotka_support"><i class="fab fa-telegram"></i></a>
+                    <a href="https://www.instagram.com/podrabotka/"><i class="fab fa-instagram"></i></a>
+                    <a href="https://vk.com/podrabotka"><i class="fab fa-vk"></i></a>
+                    <a href="https://wa.me/79123456789"><i class="fab fa-whatsapp"></i></a>
+                </div>
+                <p class="footer-contact animate-on-scroll" data-delay="0.9s">Связь: <a href="mailto:hello@podrabotka.ru">hello@podrabotka.ru</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+
+            const user = await getCurrentUser();
+
+
+            if (user && user.role === 'employer') {
+                document.getElementById('createJobBtn').style.display = 'inline-block';
+                document.getElementById('employerLink').style.display = 'block';
+            }
+
+
+            loadJobsForHome();
+        });
+
+        function loadJobsForHome() {
+            const jobs = JSON.parse(localStorage.getItem('podrabotka_jobs')) || [];
+            const container = document.getElementById('jobsContainer');
+
+            if (jobs.length === 0) {
+
+                container.innerHTML = `
+                    <div class="cards-jobs animate-on-scroll" data-delay="0.4s" data-job="Бариста в кофейню" data-place="Центр" data-salary="45 000 руб." onclick="openModal(this)">
+                        <h3>Бариста в кофейню</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Центр</p>
+                        <p><i class="fas fa-ruble-sign"></i> 45 000 руб.</p>
+                        <span class="strelka">→</span>
+                    </div>
+                    <div class="cards-jobs animate-on-scroll" data-delay="0.6s" data-job="Курьер на велосипеде" data-place="Левобережный" data-salary="60 000 руб." onclick="openModal(this)">
+                        <h3>Курьер на велосипеде</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Левобережный</p>
+                        <p><i class="fas fa-ruble-sign"></i> 60 000 руб.</p>
+                        <span class="strelka">→</span>
+                    </div>
+                    <div class="cards-jobs animate-on-scroll" data-delay="0.8s" data-job="Модератор чатов" data-place="Удалённо" data-salary="40 000 руб." onclick="openModal(this)">
+                        <h3>Модератор чатов</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Удалённо</p>
+                        <p><i class="fas fa-ruble-sign"></i> 40 000 руб.</p>
+                        <span class="strelka">→</span>
+                    </div>
+                    <div class="cards-jobs placeholder animate-on-scroll" data-delay="1s">
+                        <h3>Ещё больше вакансий</h3>
+                        <p><i class="fas fa-sync-alt"></i> Обновляется каждые 30 мин</p>
+                        <p><i class="fas fa-cog"></i> Скоро — больше категорий</p>
+                    </div>
+                    <div class="cards-jobs placeholder animate-on-scroll" data-delay="1.2s">
+                        <h3>Добавь свою вакансию</h3>
+                        <p><i class="fas fa-briefcase"></i> Для бизнеса и фрилансеров</p>
+                        <p><i class="fas fa-envelope"></i> Пишите: work@podrabotka.ru</p>
+                    </div>
+                    <div class="cards-jobs placeholder animate-on-scroll" data-delay="1.4s">
+                        <h3>Пригласи друга</h3>
+                        <p><i class="fas fa-users"></i> Получи 3000 ₽ за каждого</p>
+                        <p><i class="fas fa-gift"></i> Программа запущена!</p>
+                    </div>
+                `;
+            } else {
+
+                let html = '';
+                jobs.slice(0, 6).forEach((job, index) => {
+                    const delay = 0.4 + (index * 0.2);
+                    html += `
+                        <div class="cards-jobs animate-on-scroll" data-delay="${delay}s"
+                             data-job="${job.title}"
+                             data-place="${job.location}"
+                             data-salary="${job.salary}"
+                             data-job-id="${job.id}"
+                             onclick="openModal(this)">
+                            <h3>${job.title}</h3>
+                            <p><i class="fas fa-map-marker-alt"></i> ${job.location}</p>
+                            <p><i class="fas fa-ruble-sign"></i> ${job.salary}</p>
+                            <span class="strelka">→</span>
+                        </div>
+                    `;
+                });
+
+
+                html += `
+                    <div class="cards-jobs placeholder animate-on-scroll" data-delay="1.6s">
+                        <h3>Ещё ${jobs.length - 6} вакансий</h3>
+                        <p><i class="fas fa-sync-alt"></i> Обновляется каждые 30 мин</p>
+                        <p><i class="fas fa-cog"></i> Больше на странице вакансий</p>
+                    </div>
+                    <div class="cards-jobs placeholder animate-on-scroll" data-delay="1.8s">
+                        <h3>Добавь свою вакансию</h3>
+                        <p><i class="fas fa-briefcase"></i> Для бизнеса и фрилансеров</p>
+                        <p><i class="fas fa-plus-circle"></i> Создать вакансию</p>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+            }
+
+
+            initAnimations();
+        }
+    </script>
+</body>
+</html>

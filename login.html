@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Вход - Podrabotka</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        .login-page {
+            padding: 10rem 0 5rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            max-width: 450px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .login-title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: #bb86fc;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .login-title p {
+            color: #aaa;
+            font-size: 1.1rem;
+            max-width: 350px;
+            margin: 0 auto;
+        }
+
+        .login-form-container {
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(187, 134, 252, 0.4);
+            border-radius: 16px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #aaa;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(187, 134, 252, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #bb86fc;
+            background: rgba(187, 134, 252, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(187, 134, 252, 0.25);
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        .remember-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .remember-checkbox label {
+            color: #aaa;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            color: #bb86fc;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1.3rem;
+            background: linear-gradient(135deg, rgba(187, 134, 252, 0.2), rgba(187, 134, 252, 0.1));
+            border: 2px solid #bb86fc;
+            color: #bb86fc;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-login:hover {
+            color: #000;
+            background: #bb86fc;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(187, 134, 252, 0.4);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 2.5rem;
+            color: #888;
+            font-size: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .register-link a {
+            color: #bb86fc;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 8px;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .register-link a:hover {
+            color: #fff;
+            border-bottom-color: #bb86fc;
+        }
+
+        @media (max-width: 768px) {
+            .login-page {
+                padding: 8rem 0 3rem;
+            }
+
+            .login-title h1 {
+                font-size: 2.5rem;
+            }
+
+            .login-form-container {
+                padding: 2rem;
+            }
+
+            .remember-forgot {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-dark"></div>
+    <div class="grid-overlay"></div>
+
+    <header class="osnova-header">
+        <div class="container">
+            <a href="index.html" class="logotip">SparkGig</a>
+            <nav>
+                <a href="index.html">Главная</a>
+                <a href="jobs.html">Вакансии</a>
+                <a href="contact.html">Контакты</a>
+                <div class="user-menu-wrapper">
+                    <a href="login.html" class="register-icon">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="login-page">
+        <div class="login-container">
+            <div class="login-title">
+                <h1>Вход в аккаунт</h1>
+                <p>Войдите, чтобы продолжить поиск подработки</p>
+            </div>
+
+            <div class="login-form-container">
+                <form id="loginPageForm">
+                    <div class="form-group">
+                        <label for="loginPageEmail">Email</label>
+                        <input type="email" id="loginPageEmail" placeholder="example@mail.ru" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPagePassword">Пароль</label>
+                        <input type="password" id="loginPagePassword" placeholder="Введите пароль" required>
+                    </div>
+
+                    <div class="remember-forgot">
+                        <div class="remember-checkbox">
+                            <input type="checkbox" id="rememberPageLogin">
+                            <label for="rememberPageLogin">Запомнить меня</label>
+                        </div>
+                        <a href="#" class="forgot-password">Забыли пароль?</a>
+                    </div>
+
+                    <button type="submit" class="btn-login">Войти</button>
+
+                    <div class="register-link">
+                        <span>Нет аккаунта?</span>
+                        <a href="register.html">Зарегистрироваться</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Страница входа загружена');
+
+            // Проверка авторизации выполняется в script.js в основном обработчике DOMContentLoaded
+
+            const loginForm = document.getElementById('loginPageForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    console.log('Форма отправлена');
+
+                    const email = document.getElementById('loginPageEmail').value.trim();
+                    const password = document.getElementById('loginPagePassword').value;
+                    const remember = document.getElementById('rememberPageLogin').checked;
+
+                    console.log('Вход с email:', email);
+                    console.log('Пароль:', password ? '***' : 'не указан');
+                    console.log('Запомнить:', remember);
+
+                    if (!email || !password) {
+                        showNotification('Заполните все поля', 'error');
+                        return;
+                    }
+
+                    const loginSuccess = await loginUser(email, password, remember);
+                    if (loginSuccess) {
+                        console.log('Вход успешен, перенаправляем...');
+                        showNotification('Вход выполнен успешно!', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1000);
+                    } else {
+                        console.log('Вход не удался');
+                        showNotification('Неверный email или пароль. Используйте тестовые данные', 'error');
+
+
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

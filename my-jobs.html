@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Мои вакансии - Podrabotka</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        .my-jobs-page {
+            padding: 10rem 0 5rem;
+            min-height: 100vh;
+        }
+
+        .my-jobs-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .my-jobs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .my-jobs-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: #bb86fc;
+            font-weight: 700;
+        }
+
+        .my-jobs-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(187, 134, 252, 0.4);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #bb86fc;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #aaa;
+            font-size: 1rem;
+        }
+
+        .jobs-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-create-new {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, rgba(187, 134, 252, 0.2), rgba(187, 134, 252, 0.1));
+            border: 2px solid #bb86fc;
+            color: #bb86fc;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-create-new:hover {
+            background: #bb86fc;
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .btn-filter {
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #666;
+            color: #aaa;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .jobs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .job-card {
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(187, 134, 252, 0.4);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .job-card:hover {
+            border-color: #bb86fc;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(187, 134, 252, 0.2);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .job-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .job-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status-inactive {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9e9e9e;
+            border: 1px solid rgba(158, 158, 158, 0.3);
+        }
+
+        .job-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .job-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #aaa;
+        }
+
+        .job-detail i {
+            color: #bb86fc;
+        }
+
+        .job-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .job-action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-view {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196f3;
+            border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+
+        .btn-edit {
+            background: rgba(187, 134, 252, 0.1);
+            color: #bb86fc;
+            border: 1px solid rgba(187, 134, 252, 0.3);
+        }
+
+        .btn-applicants {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-delete {
+            background: rgba(255, 87, 87, 0.1);
+            color: #ff5757;
+            border: 1px solid rgba(255, 87, 87, 0.3);
+        }
+
+        .btn-view:hover { background: rgba(33, 150, 243, 0.2); }
+        .btn-edit:hover { background: rgba(187, 134, 252, 0.2); }
+        .btn-applicants:hover { background: rgba(255, 193, 7, 0.2); }
+        .btn-delete:hover { background: rgba(255, 87, 87, 0.2); }
+
+        .no-jobs {
+            text-align: center;
+            padding: 4rem;
+            color: #888;
+        }
+
+        .no-jobs i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #666;
+        }
+
+        .no-jobs h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #aaa;
+        }
+
+        .no-jobs p {
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (max-width: 768px) {
+            .my-jobs-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+
+            .my-jobs-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .my-jobs-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .job-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .job-actions {
+                flex-wrap: wrap;
+            }
+
+            .job-action-btn {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .my-jobs-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .job-details {
+                grid-template-columns: 1fr;
+            }
+
+            .jobs-actions {
+                flex-direction: column;
+            }
+
+            .job-action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-dark"></div>
+    <div class="grid-overlay"></div>
+
+    <header class="osnova-header">
+        <div class="container">
+            <a href="index.html" class="logotip">SparkGig</a>
+            <nav>
+                <a href="index.html">Главная</a>
+                <a href="jobs.html">Вакансии</a>
+                <a href="contact.html">Контакты</a>
+                <div class="user-menu-wrapper">
+                    <a href="profil.html" class="register-icon">
+                        <i class="fas fa-user-check"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="my-jobs-page">
+        <div class="my-jobs-container">
+            <div class="my-jobs-header">
+                <h1>Мои вакансии</h1>
+                <div class="jobs-actions">
+                    <button class="btn-create-new" onclick="window.location.href='create-job.html'">
+                        <i class="fas fa-plus"></i>
+                        Создать вакансию
+                    </button>
+                </div>
+            </div>
+
+            <div class="my-jobs-stats" id="jobsStats">
+                <!-- Статистика загрузится через JS -->
+            </div>
+
+            <div class="jobs-list" id="jobsList">
+                <div class="no-jobs" id="noJobs">
+                    <i class="fas fa-briefcase"></i>
+                    <h3>У вас пока нет вакансий</h3>
+                    <p>Создайте первую вакансию, чтобы найти сотрудников</p>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const user = await getCurrentUser();
+
+            if (!user) {
+                showNotification('Для доступа необходимо войти в систему', 'warning');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+                return;
+            }
+
+            if (user.role !== 'employer') {
+                showNotification('Эта страница доступна только работодателям', 'warning');
+                setTimeout(() => {
+                    window.location.href = 'profil.html';
+                }, 1500);
+                return;
+            }
+
+            loadEmployerJobs();
+            loadJobsStats();
+        });
+
+        async function loadEmployerJobs() {
+            const jobs = await getEmployerJobs();
+            const container = document.getElementById('jobsList');
+            const noJobs = document.getElementById('noJobs');
+
+            if (jobs.length === 0) {
+                noJobs.style.display = 'block';
+                return;
+            }
+
+            noJobs.style.display = 'none';
+            let html = '';
+
+            for (const job of jobs) {
+                const applicants = await getJobApplicants(job.id);
+                const statusClass = job.isActive ? 'status-active' : 'status-inactive';
+                const statusText = job.isActive ? 'Активна' : 'Неактивна';
+
+                html += `
+                    <div class="job-card" data-job-id="${job.id}">
+                        <div class="job-header">
+                            <div class="job-title">${job.title}</div>
+                            <div class="job-status ${statusClass}">${statusText}</div>
+                        </div>
+
+                        <div class="job-details">
+                            <div class="job-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>${job.location}</span>
+                            </div>
+                            <div class="job-detail">
+                                <i class="fas fa-ruble-sign"></i>
+                                <span>${job.salary}</span>
+                            </div>
+                            <div class="job-detail">
+                                <i class="fas fa-calendar"></i>
+                                <span>${formatDate(job.createdAt)}</span>
+                            </div>
+                            <div class="job-detail">
+                                <i class="fas fa-users"></i>
+                                <span>${applicants.length} откликов</span>
+                            </div>
+                        </div>
+
+                        <div class="job-actions">
+                            <button class="job-action-btn btn-view" onclick="viewJob(${job.id})">
+                                <i class="fas fa-eye"></i> Просмотр
+                            </button>
+                            <button class="job-action-btn btn-applicants" onclick="viewApplicants(${job.id})">
+                                <i class="fas fa-user-check"></i> Отклики (${applicants.length})
+                            </button>
+                            <button class="job-action-btn btn-delete" onclick="deleteJobConfirmation(${job.id})">
+                                <i class="fas fa-trash"></i> Удалить
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        async function loadJobsStats() {
+            const jobs = await getEmployerJobs();
+            const applicants = JSON.parse(localStorage.getItem('podrabotka_applications')) || [];
+
+            const statsContainer = document.getElementById('jobsStats');
+            const activeJobs = jobs.filter(job => job.isActive).length;
+            const totalApplicants = applicants.filter(app =>
+                jobs.some(job => job.id === app.jobId)
+            ).length;
+
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${jobs.length}</div>
+                    <div class="stat-label">Всего вакансий</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${activeJobs}</div>
+                    <div class="stat-label">Активных</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalApplicants}</div>
+                    <div class="stat-label">Всего откликов</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${new Date().getFullYear()}</div>
+                    <div class="stat-label">Год основания</div>
+                </div>
+            `;
+        }
+
+        async function viewJob(jobId) {
+            const jobs = await getEmployerJobs();
+            const job = jobs.find(j => j.id === jobId);
+
+            if (job) {
+                let message = `📋 ${job.title}\n\n`;
+                message += `📍 ${job.location}\n`;
+                message += `💰 ${job.salary}\n\n`;
+                message += `📝 Описание:\n${job.description}\n\n`;
+
+                if (job.requirements && job.requirements.length > 0) {
+                    message += `📋 Требования:\n`;
+                    job.requirements.forEach(req => message += `• ${req}\n`);
+                    message += `\n`;
+                }
+
+                if (job.benefits) {
+                    message += `🎁 Условия:\n${job.benefits}\n\n`;
+                }
+
+                message += `📞 Контакты: ${job.contacts}\n`;
+                message += `📅 Создано: ${formatDate(job.createdAt)}`;
+
+                alert(message);
+            }
+        }
+
+        async function viewApplicants(jobId) {
+            const applicants = await getJobApplicants(jobId);
+
+            if (applicants.length === 0) {
+                showNotification('На эту вакансию пока нет откликов', 'info');
+                return;
+            }
+
+            let message = 'Отклики на вакансию:\n\n';
+            applicants.forEach((app, index) => {
+                message += `${index + 1}. ${app.applicantName}\n`;
+                message += `   Email: ${app.applicantEmail}\n`;
+                message += `   Телефон: ${app.applicantPhone}\n`;
+                message += `   Сообщение: ${app.message}\n`;
+                message += `   Статус: ${app.status}\n\n`;
+            });
+
+            alert(message);
+        }
+
+        async function deleteJobConfirmation(jobId) {
+            if (confirm('Вы уверены, что хотите удалить эту вакансию? Все отклики также будут удалены.')) {
+                const result = await deleteJob(jobId);
+                if (result) {
+                    showNotification('Вакансия удалена!', 'success');
+                    await loadEmployerJobs();
+                    await loadJobsStats();
+                } else {
+                    showNotification('Ошибка при удалении вакансии', 'error');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
