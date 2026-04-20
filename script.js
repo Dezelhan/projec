@@ -1247,6 +1247,8 @@ async function updateApplicationStatus(applicationId, newStatus) {
     return true;
 }
 
+
+
 // ========== ЭКСПОРТ ФУНКЦИЙ ==========
 window.openModal = openModal;
 window.logout = logout;

@@ -340,6 +340,13 @@
                         </div>
                     </div>
 
+                    <div class="input-group">
+                        <label style="color: #bb86fc; display: block; margin-bottom: 8px;">Скан паспорта (обязательно):</label>
+                        <input type="file" id="passportFile" accept="image/*" required 
+                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(187,134,252,0.3); color: #fff; padding: 10px; width: 100%; border-radius: 8px;">
+                    </div>
+
+
                     <div class="terms-checkbox">
                         <label>
                             <input type="checkbox" id="termsAgree" required>
@@ -359,55 +366,295 @@
     </main>
 
     <script src="script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            const registerForm = document.getElementById('registerPageForm');
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Проверяем, не авторизован ли уже пользователь
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+            showNotification('Вы уже авторизованы', 'info');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+            return;
+        }
 
-            if (registerForm) {
-                registerForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
+        const registerForm = document.getElementById('registerPageForm');
+        const passwordInput = document.getElementById('registerPassword');
+        const repeatPasswordInput = document.getElementById('registerRepeatPassword');
 
-                    const name = document.getElementById('registerName').value.trim();
-                    const email = document.getElementById('registerEmail').value.trim();
-                    const password = document.getElementById('registerPassword').value;
-                    const repeatPassword = document.getElementById('registerRepeatPassword').value;
-                    const userType = document.querySelector('input[name="userType"]:checked');
-                    const termsAgree = document.getElementById('termsAgree').checked;
+        // Валидация пароля в реальном времени
+        if (passwordInput && repeatPasswordInput) {
+            repeatPasswordInput.addEventListener('input', function() {
+                if (passwordInput.value !== repeatPasswordInput.value) {
+                    repeatPasswordInput.setCustomValidity('Пароли не совпадают');
+                } else {
+                    repeatPasswordInput.setCustomValidity('');
+                }
+            });
 
-                    if (!name || !email || !password || !repeatPassword || !userType) {
-                        showNotification('Заполните все поля', 'error');
-                        return;
-                    }
+            passwordInput.addEventListener('input', function() {
+                if (passwordInput.value !== repeatPasswordInput.value && repeatPasswordInput.value) {
+                    repeatPasswordInput.setCustomValidity('Пароли не совпадают');
+                } else {
+                    repeatPasswordInput.setCustomValidity('');
+                }
+            });
+        }
 
-                    if (!termsAgree) {
-                        showNotification('Необходимо согласиться с условиями', 'error');
-                        return;
-                    }
+        if (registerForm) {
+            registerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                console.log('Начало регистрации...');
 
-                    if (password.length < 5) {
-                        showNotification('Пароль должен быть не менее 5 символов', 'error');
-                        return;
-                    }
+                // Получаем значения полей
+                const name = document.getElementById('registerName').value.trim();
+                const email = document.getElementById('registerEmail').value.trim();
+                const password = document.getElementById('registerPassword').value;
+                const repeatPassword = document.getElementById('registerRepeatPassword').value;
+                const userTypeElement = document.querySelector('input[name="userType"]:checked');
+                const termsAgree = document.getElementById('termsAgree').checked;
+                const fileInput = document.getElementById('passportFile');
+                const file = fileInput.files[0];
 
-                    if (password !== repeatPassword) {
-                        showNotification('Пароли не совпадают', 'error');
-                        return;
-                    }
+                // Валидация
+                if (!name || !email || !password || !repeatPassword) {
+                    showNotification('Заполните все поля', 'error');
+                    return;
+                }
 
-                    const registerSuccess = await registerUser(email, password, repeatPassword, userType.value, true, { name: name });
-                    if (registerSuccess) {
-                        showNotification('Регистрация успешна!', 'success');
-                        registerForm.reset();
+                if (name.length < 2) {
+                    showNotification('Имя должно содержать минимум 2 символа', 'error');
+                    return;
+                }
 
-                        setTimeout(() => {
-                            window.location.href = 'profil.html';
-                        }, 1500);
-                    }
+                if (!isValidEmail(email)) {
+                    showNotification('Введите корректный email', 'error');
+                    return;
+                }
+
+                if (password.length < 5) {
+                    showNotification('Пароль должен содержать минимум 5 символов', 'error');
+                    return;
+                }
+
+                if (password !== repeatPassword) {
+                    showNotification('Пароли не совпадают', 'error');
+                    return;
+                }
+
+                if (!userTypeElement) {
+                    showNotification('Выберите тип аккаунта', 'error');
+                    return;
+                }
+
+                if (!termsAgree) {
+                    showNotification('Необходимо согласиться с условиями использования', 'error');
+                    return;
+                }
+
+                if (!file) {
+                    showNotification('Загрузите скан паспорта', 'error');
+                    return;
+                }
+
+                // Проверка типа файла
+                if (!file.type.startsWith('image/')) {
+                    showNotification('Пожалуйста, загрузите изображение', 'error');
+                    return;
+                }
+
+                // Проверка размера файла (макс 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showNotification('Размер файла не должен превышать 5MB', 'error');
+                    return;
+                }
+
+                const userType = userTypeElement.value;
+
+                console.log('Данные формы:', {
+                    name,
+                    email,
+                    userType,
+                    fileSize: file.size,
+                    fileName: file.name
                 });
-            }
 
-            
-        });
-    </script>
+                // Показываем индикатор загрузки
+                const submitBtn = registerForm.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.textContent;
+                submitBtn.textContent = 'Регистрация...';
+                submitBtn.disabled = true;
+
+                try {
+                    // Читаем файл как base64
+                    const reader = new FileReader();
+                    
+                    reader.onload = async function() {
+                        const base64Data = reader.result;
+                        
+                        console.log('Файл прочитан, отправка на сервер...');
+
+                        try {
+                            const response = await fetch('/api/register.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                credentials: 'include',
+                                body: JSON.stringify({
+                                    email: email,
+                                    password: password,
+                                    userType: userType,
+                                    name: name,
+                                    extraData: {
+                                        name: name,
+                                        passportData: base64Data
+                                    }
+                                })
+                            });
+
+                            console.log('Ответ сервера получен, статус:', response.status);
+
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+
+                            const result = await response.json();
+                            console.log('Результат регистрации:', result);
+
+                            if (result.success) {
+                                // Сохраняем данные пользователя если они пришли
+                                if (result.user) {
+                                    // Обновляем глобального пользователя
+                                    if (typeof window.updateCurrentUser === 'function') {
+                                        window.updateCurrentUser(result.user);
+                                    }
+                                    // Сохраняем в localStorage
+                                    localStorage.setItem('podrabotka_current_user', JSON.stringify(result.user));
+                                }
+
+                                showNotification('Регистрация успешна! Вы автоматически вошли в систему', 'success');
+                                
+                                // Перенаправляем на главную
+                                setTimeout(() => {
+                                    window.location.href = 'index.html';
+                                }, 1500);
+                            } else {
+                                showNotification(result.message || 'Ошибка регистрации', 'error');
+                                submitBtn.textContent = originalBtnText;
+                                submitBtn.disabled = false;
+                            }
+                        } catch (error) {
+                            console.error('Ошибка запроса:', error);
+                            showNotification('Ошибка соединения с сервером. Проверьте подключение к интернету.', 'error');
+                            submitBtn.textContent = originalBtnText;
+                            submitBtn.disabled = false;
+                        }
+                    };
+
+                    reader.onerror = function() {
+                        console.error('Ошибка чтения файла');
+                        showNotification('Ошибка при чтении файла', 'error');
+                        submitBtn.textContent = originalBtnText;
+                        submitBtn.disabled = false;
+                    };
+
+                    reader.readAsDataURL(file);
+                    
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                    showNotification('Произошла ошибка при регистрации', 'error');
+                    submitBtn.textContent = originalBtnText;
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+
+        // Функция валидации email
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Добавляем стили для уведомлений если их нет
+        if (!document.querySelector('#notification-styles')) {
+            const style = document.createElement('style');
+            style.id = 'notification-styles';
+            style.textContent = `
+                .notification {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    min-width: 300px;
+                    max-width: 500px;
+                    z-index: 10000;
+                    animation: notificationSlideIn 0.3s ease;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                }
+                
+                .notification.success {
+                    background: linear-gradient(135deg, #4caf50, #45a049);
+                    color: white;
+                    border-left: 4px solid #2e7d32;
+                }
+                
+                .notification.error {
+                    background: linear-gradient(135deg, #f44336, #e53935);
+                    color: white;
+                    border-left: 4px solid #c62828;
+                }
+                
+                .notification.info {
+                    background: linear-gradient(135deg, #2196f3, #1e88e5);
+                    color: white;
+                    border-left: 4px solid #1565c0;
+                }
+                
+                .notification.warning {
+                    background: linear-gradient(135deg, #ff9800, #fb8c00);
+                    color: white;
+                    border-left: 4px solid #e65100;
+                }
+                
+                .notification-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                
+                .notification-close {
+                    background: none;
+                    border: none;
+                    color: white;
+                    cursor: pointer;
+                    padding: 5px;
+                    opacity: 0.8;
+                    transition: opacity 0.3s;
+                }
+                
+                .notification-close:hover {
+                    opacity: 1;
+                }
+                
+                @keyframes notificationSlideIn {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    });
+</script>
 </body>
 </html>

@@ -617,6 +617,15 @@
                             </div>
                         </section>
 
+                        <div class="profile-section" style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 15px; border: 1px solid rgba(187, 134, 252, 0.2);">
+                            <h3 style="color: #bb86fc; margin-bottom: 15px;"><i class="fas fa-id-card"></i> Верификация личности</h3>
+                            <div id="passportContainer">
+                                <p id="noPassportText" style="color: #888;">Скан паспорта не загружен</p>
+                                <img id="passportPreview" src="" alt="Скан паспорта" 
+                                    style="display: none; width: 100%; max-width: 500px; border-radius: 10px; border: 1px solid rgba(187, 134, 252, 0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                            </div>
+                        </div>
+
                         <section class="profile-section">
                             <h2>Статистика</h2>
                             <div class="stats-grid">
@@ -716,265 +725,296 @@
         </div>
     </main>
 
-    <script src="script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            const currentUser = await getCurrentUser();
+<script src="script.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('Страница профиля загружена');
+        
+        // Получаем текущего пользователя
+        const user = await getCurrentUser();
+        
+        if (!user) {
+            showNotification('Для доступа к профилю необходимо войти в систему', 'warning');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+            return;
+        }
 
-            if (!currentUser) {
-                showNotification('Для доступа к профилю необходимо войти в систему', 'warning');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1500);
-                return;
+        console.log('Пользователь в профиле:', user);
+        
+        // Загружаем информацию профиля
+        await loadProfilePageInfo();
+        
+        // Показываем ссылку для работодателей
+        if (user.role === 'employer') {
+            document.getElementById('employerJobsLinkProfile').style.display = 'flex';
+        }
+
+        // Загружаем паспорт если есть
+        const imgElement = document.getElementById('passportPreview');
+        const noPassportText = document.getElementById('noPassportText');
+
+        if (user.passport_path) {
+            if (imgElement) {
+                imgElement.src = user.passport_path;
+                imgElement.style.display = 'block';
             }
+            if (noPassportText) {
+                noPassportText.style.display = 'none';
+            }
+        } else {
+            if (imgElement) imgElement.style.display = 'none';
+            if (noPassportText) noPassportText.style.display = 'block';
+        }
+    });
 
-            loadProfilePageInfo();
+    function switchProfileTab(tabName) {
+        document.querySelectorAll('.profile-tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
 
-            // Показываем ссылку для работодателей
-            if (currentUser.role === 'employer') {
-                document.getElementById('employerJobsLinkProfile').style.display = 'flex';
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+
+        document.querySelectorAll('.profile-tab').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Активируем нужную вкладку
+        event.target.classList.add('active');
+
+        document.querySelectorAll('.profile-menu a').forEach(link => {
+            link.classList.remove('active');
+            if (link.textContent.includes(getTabDisplayName(tabName))) {
+                link.classList.add('active');
             }
         });
 
-        function switchProfileTab(tabName) {
-            document.querySelectorAll('.profile-tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-
-            document.querySelectorAll('.profile-tab').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            document.querySelectorAll('.profile-menu a').forEach(link => {
-                link.classList.remove('active');
-                if (link.textContent.includes(getTabDisplayName(tabName))) {
-                    link.classList.add('active');
-                }
-            });
-
-            if (tabName === 'applications') {
-                loadApplications();
-            }
-
-            if (tabName === 'settings') {
-                loadSettingsData();
-            }
+        if (tabName === 'applications') {
+            loadApplications();
         }
 
-        function getTabDisplayName(tabName) {
-            const names = {
-                'info': 'Личная информация',
-                'applications': 'Мои отклики',
-                'settings': 'Настройки'
-            };
-            return names[tabName] || tabName;
+        if (tabName === 'settings') {
+            loadSettingsData();
+        }
+    }
+
+    function getTabDisplayName(tabName) {
+        const names = {
+            'info': 'Личная информация',
+            'applications': 'Мои отклики',
+            'settings': 'Настройки'
+        };
+        return names[tabName] || tabName;
+    }
+
+    async function loadProfilePageInfo() {
+        const user = await getCurrentUser();
+        if (!user) return;
+
+        console.log('Загрузка данных профиля для:', user);
+
+        // Обновляем все поля с данными пользователя
+        document.getElementById('profileUserName').textContent = user.name || 'Пользователь';
+        document.getElementById('profileUserRole').textContent = user.role === 'employer' ? 'Работодатель' : 'Искатель работы';
+
+        document.getElementById('infoName').textContent = user.name || 'Не указано';
+        document.getElementById('infoEmail').textContent = user.email;
+        document.getElementById('infoPhone').textContent = user.phone || 'Не указан';
+        document.getElementById('infoRole').textContent = user.role === 'employer' ? 'Работодатель' : 'Искатель работы';
+        document.getElementById('infoRegistered').textContent = formatDate(user.registeredAt || new Date().toISOString());
+        document.getElementById('infoStatus').textContent = user.isAdmin ? 'Администратор' : 'Активный';
+
+        // Загружаем отклики из базы данных (только для искателей работы)
+        if (user.role !== 'employer') {
+            const userApplications = await getUserApplications();
+            document.getElementById('statApplications').textContent = userApplications.length;
+            document.getElementById('statActive').textContent = userApplications.filter(app => app.status === 'new' || app.status === 'active').length;
+            document.getElementById('statCompleted').textContent = userApplications.filter(app => app.status === 'completed').length;
+        } else {
+            document.getElementById('statApplications').textContent = '0';
+            document.getElementById('statActive').textContent = '0';
+            document.getElementById('statCompleted').textContent = '0';
         }
 
-        async function loadProfilePageInfo() {
-            const user = await getCurrentUser();
-            if (!user) return;
-
-            document.getElementById('profileUserName').textContent = user.name || 'Не указано';
-            document.getElementById('profileUserRole').textContent = user.role === 'employer' ? 'Работодатель' : 'Искатель работы';
-
-            document.getElementById('infoName').textContent = user.name || 'Не указано';
-            document.getElementById('infoEmail').textContent = user.email;
-            document.getElementById('infoPhone').textContent = user.phone || 'Не указан';
-            document.getElementById('infoRole').textContent = user.role === 'employer' ? 'Работодатель' : 'Искатель работы';
-            document.getElementById('infoRegistered').textContent = formatDate(user.registeredAt || new Date().toISOString());
-            document.getElementById('infoStatus').textContent = user.isAdmin ? 'Администратор' : 'Активный';
-
-            // Загружаем отклики из базы данных (только для искателей работы)
-            if (user.role !== 'employer') {
-                const userApplications = await getUserApplications();
-
-                document.getElementById('statApplications').textContent = userApplications.length;
-                document.getElementById('statActive').textContent = userApplications.filter(app => app.status === 'new' || app.status === 'active').length;
-                document.getElementById('statCompleted').textContent = userApplications.filter(app => app.status === 'completed').length;
-            } else {
-                // Для работодателей статистика откликов не нужна
-                document.getElementById('statApplications').textContent = '0';
-                document.getElementById('statActive').textContent = '0';
-                document.getElementById('statCompleted').textContent = '0';
-            }
-
-            if (user.registeredAt) {
-                const registeredDate = new Date(user.registeredAt);
-                const today = new Date();
-                const diffTime = Math.abs(today - registeredDate);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                document.getElementById('statDays').textContent = diffDays;
-            }
-
-            document.getElementById('editName').value = user.name || '';
-            document.getElementById('editPhone').value = user.phone || '';
-            document.getElementById('editCompany').value = user.company || '';
+        if (user.registeredAt) {
+            const registeredDate = new Date(user.registeredAt);
+            const today = new Date();
+            const diffTime = Math.abs(today - registeredDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            document.getElementById('statDays').textContent = diffDays;
         }
 
-        async function loadApplications() {
-            console.log('loadApplications: начало загрузки откликов');
-            const applications = await getUserApplications();
-            console.log('loadApplications: получено откликов', applications.length);
-            const container = document.getElementById('applicationsList');
-            
-            if (!container) {
-                console.error('loadApplications: контейнер не найден');
-                return;
-            }
+        document.getElementById('editName').value = user.name || '';
+        document.getElementById('editPhone').value = user.phone || '';
+        document.getElementById('editCompany').value = user.company || '';
+    }
 
-            if (applications.length === 0) {
-                container.innerHTML = `
-                    <div class="no-applications" style="text-align: center; padding: 3rem; color: #888;">
-                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                        <h3>Откликов пока нет</h3>
-                        <p>Откликнитесь на вакансию, чтобы она появилась здесь</p>
-                        <a href="jobs.html" class="btn btn-knopka" style="margin-top: 1rem;">Найти вакансии</a>
+    async function loadApplications() {
+        console.log('loadApplications: начало загрузки откликов');
+        const applications = await getUserApplications();
+        console.log('loadApplications: получено откликов', applications.length);
+        const container = document.getElementById('applicationsList');
+        
+        if (!container) {
+            console.error('loadApplications: контейнер не найден');
+            return;
+        }
+
+        if (applications.length === 0) {
+            container.innerHTML = `
+                <div class="no-applications" style="text-align: center; padding: 3rem; color: #888;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <h3>Откликов пока нет</h3>
+                    <p>Откликнитесь на вакансию, чтобы она появилась здесь</p>
+                    <a href="jobs.html" class="btn btn-knopka" style="margin-top: 1rem;">Найти вакансии</a>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        applications.forEach(app => {
+            const statusClass = getStatusClass(app.status);
+            const statusText = getStatusText(app.status);
+
+            html += `
+                <div class="application-item">
+                    <div class="application-header">
+                        <div class="application-title">${app.jobTitle}</div>
+                        <div class="application-status ${statusClass}">${statusText}</div>
                     </div>
-                `;
-                return;
-            }
-
-            let html = '';
-            applications.forEach(app => {
-                const statusClass = getStatusClass(app.status);
-                const statusText = getStatusText(app.status);
-
-                html += `
-                    <div class="application-item">
-                        <div class="application-header">
-                            <div class="application-title">${app.jobTitle}</div>
-                            <div class="application-status ${statusClass}">${statusText}</div>
+                    <div class="application-details">
+                        <div class="application-detail">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${app.location}</span>
                         </div>
-
-                        <div class="application-details">
-                            <div class="application-detail">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>${app.location}</span>
-                            </div>
-                            <div class="application-detail">
-                                <i class="fas fa-ruble-sign"></i>
-                                <span>${app.salary}</span>
-                            </div>
-                            <div class="application-detail">
-                                <i class="fas fa-calendar"></i>
-                                <span>${formatDate(app.createdAt)}</span>
-                            </div>
+                        <div class="application-detail">
+                            <i class="fas fa-ruble-sign"></i>
+                            <span>${app.salary}</span>
                         </div>
-
-                        ${app.message ? `
-                        <div class="application-message">
-                            <strong>Ваше сообщение:</strong><br>
-                            ${app.message}
-                        </div>
-                        ` : ''}
-
-                        <div class="application-actions">
-                            <button class="btn-action btn-edit" onclick="editApplication(${app.id})">
-                                <i class="fas fa-edit"></i> Редактировать
-                            </button>
-                            <button class="btn-action btn-delete" onclick="deleteApplicationConfirmation(${app.id})">
-                                <i class="fas fa-trash"></i> Удалить
-                            </button>
+                        <div class="application-detail">
+                            <i class="fas fa-calendar"></i>
+                            <span>${formatDate(app.createdAt)}</span>
                         </div>
                     </div>
-                `;
-            });
+                    ${app.message ? `
+                    <div class="application-message">
+                        <strong>Ваше сообщение:</strong><br>
+                        ${app.message}
+                    </div>
+                    ` : ''}
+                    <div class="application-actions">
+                        <button class="btn-action btn-edit" onclick="editApplication(${app.id})">
+                            <i class="fas fa-edit"></i> Редактировать
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteApplicationConfirmation(${app.id})">
+                            <i class="fas fa-trash"></i> Удалить
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
 
-            container.innerHTML = html;
+        container.innerHTML = html;
+    }
+
+    function getStatusClass(status) {
+        switch(status) {
+            case 'new': return 'status-new';
+            case 'active': return 'status-active';
+            case 'completed': return 'status-completed';
+            default: return 'status-new';
         }
+    }
 
-        function getStatusClass(status) {
-            switch(status) {
-                case 'new': return 'status-new';
-                case 'active': return 'status-active';
-                case 'completed': return 'status-completed';
-                default: return 'status-new';
-            }
+    function getStatusText(status) {
+        switch(status) {
+            case 'new': return 'Новый';
+            case 'active': return 'Активный';
+            case 'completed': return 'Завершён';
+            default: return 'Новый';
         }
+    }
 
-        function getStatusText(status) {
-            switch(status) {
-                case 'new': return 'Новый';
-                case 'active': return 'Активный';
-                case 'completed': return 'Завершён';
-                default: return 'Новый';
-            }
-        }
+    function openEditModal() {
+        const user = getCurrentUser();
+        const name = prompt('Введите новое имя:', user.name || '');
+        const phone = prompt('Введите новый телефон:', user.phone || '');
+        const company = prompt('Введите компанию:', user.company || '');
 
-        function openEditModal() {
-            const user = getCurrentUser();
-            const name = prompt('Введите новое имя:', user.name || '');
-            const phone = prompt('Введите новый телефон:', user.phone || '');
-            const company = prompt('Введите компанию:', user.company || '');
-
-            if (name !== null) {
-                if (updateProfile(name, phone, company)) {
-                    showNotification('Профиль успешно обновлен!', 'success');
-                    loadProfilePageInfo();
-                } else {
-                    showNotification('Ошибка при обновлении профиля', 'error');
-                }
-            }
-        }
-
-        function saveProfileChanges() {
-            const name = document.getElementById('editName').value.trim();
-            const phone = document.getElementById('editPhone').value.trim();
-            const company = document.getElementById('editCompany').value.trim();
-
+        if (name !== null) {
             if (updateProfile(name, phone, company)) {
                 showNotification('Профиль успешно обновлен!', 'success');
                 loadProfilePageInfo();
-                switchProfileTab('info');
             } else {
                 showNotification('Ошибка при обновлении профиля', 'error');
             }
         }
+    }
 
-        function cancelProfileChanges() {
+    function saveProfileChanges() {
+        const name = document.getElementById('editName').value.trim();
+        const phone = document.getElementById('editPhone').value.trim();
+        const company = document.getElementById('editCompany').value.trim();
+
+        if (updateProfile(name, phone, company)) {
+            showNotification('Профиль успешно обновлен!', 'success');
+            loadProfilePageInfo();
             switchProfileTab('info');
+        } else {
+            showNotification('Ошибка при обновлении профиля', 'error');
         }
+    }
 
-        function editApplication(applicationId) {
-            const applications = JSON.parse(localStorage.getItem('podrabotka_applications')) || [];
-            const application = applications.find(app => app.id === applicationId);
+    function cancelProfileChanges() {
+        switchProfileTab('info');
+    }
 
-            if (application) {
-                const newMessage = prompt('Редактируйте ваше сопроводительное сообщение:', application.message);
-                if (newMessage !== null) {
-                    application.message = newMessage;
-                    localStorage.setItem('podrabotka_applications', JSON.stringify(applications));
-                    showNotification('Отклик обновлен!', 'success');
-                    loadApplications();
-                }
+    function editApplication(applicationId) {
+        const applications = JSON.parse(localStorage.getItem('podrabotka_applications')) || [];
+        const application = applications.find(app => app.id === applicationId);
+
+        if (application) {
+            const newMessage = prompt('Редактируйте ваше сопроводительное сообщение:', application.message);
+            if (newMessage !== null) {
+                application.message = newMessage;
+                localStorage.setItem('podrabotka_applications', JSON.stringify(applications));
+                showNotification('Отклик обновлен!', 'success');
+                loadApplications();
             }
         }
+    }
 
-        async function deleteApplicationConfirmation(applicationId) {
-            if (confirm('Вы уверены, что хотите удалить этот отклик?')) {
-                const result = await deleteApplication(applicationId);
-                if (result) {
-                    showNotification('Отклик удален!', 'success');
-                    await loadApplications();
-                    // Обновляем статистику в профиле
-                    await loadProfilePageInfo();
-                } else {
-                    showNotification('Ошибка при удалении отклика', 'error');
-                }
+    async function deleteApplicationConfirmation(applicationId) {
+        if (confirm('Вы уверены, что хотите удалить этот отклик?')) {
+            const result = await deleteApplication(applicationId);
+            if (result) {
+                showNotification('Отклик удален!', 'success');
+                await loadApplications();
+                await loadProfilePageInfo();
+            } else {
+                showNotification('Ошибка при удалении отклика', 'error');
             }
         }
+    }
 
-        function loadSettingsData() {
-            const user = getCurrentUser();
-            if (!user) return;
+    function loadSettingsData() {
+        const user = getCurrentUser();
+        if (!user) return;
 
-            document.getElementById('editName').value = user.name || '';
-            document.getElementById('editPhone').value = user.phone || '';
-            document.getElementById('editCompany').value = user.company || '';
-        }
-    </script>
+        document.getElementById('editName').value = user.name || '';
+        document.getElementById('editPhone').value = user.phone || '';
+        document.getElementById('editCompany').value = user.company || '';
+    }
+
+    // Делаем функции глобальными
+    window.switchProfileTab = switchProfileTab;
+    window.openEditModal = openEditModal;
+    window.saveProfileChanges = saveProfileChanges;
+    window.cancelProfileChanges = cancelProfileChanges;
+    window.editApplication = editApplication;
+    window.deleteApplicationConfirmation = deleteApplicationConfirmation;
+</script>
 </body>
 </html>

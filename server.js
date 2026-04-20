@@ -6,6 +6,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
 const fs = require("fs");
+const multer = require('multer');
 
 const app = express();
 const PORT = 8000;
@@ -18,8 +19,11 @@ app.use(
     credentials: true,
   }),
 );
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Настройка для обычного JSON (через него летит паспорт)
+app.use(bodyParser.json({ limit: '50mb' }));
+
+// Настройка для данных из форм (на всякий случай)
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 // Логирование всех запросов (для отладки)
 app.use((req, res, next) => {
@@ -75,6 +79,7 @@ function initDatabase() {
                 is_admin INTEGER DEFAULT 0,
                 registered_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 last_login DATETIME
+                passport_path TEXT
             )`,
         (err) => {
           if (err) {
@@ -105,6 +110,7 @@ function initDatabase() {
         },
       );
 
+      
       // Таблица откликов
       db.run(
         `CREATE TABLE IF NOT EXISTS applications (
@@ -202,7 +208,7 @@ app.get("/api/check_session.php", (req, res) => {
 
   if (req.session.user_id) {
     db.get(
-      "SELECT id, email, name, role, phone, company, is_admin, registered_at FROM users WHERE id = ?",
+      "SELECT id, email, name, role, phone, company, is_admin, passport_path, registered_at FROM users WHERE id = ?",
       [req.session.user_id],
       (err, user) => {
         if (err || !user) {
@@ -225,6 +231,7 @@ app.get("/api/check_session.php", (req, res) => {
             isAdmin: user.is_admin === 1,
             phone: user.phone || "",
             company: user.company || "",
+            passport_path: user.passport_path,
             registeredAt: user.registered_at,
           },
         });
@@ -343,178 +350,88 @@ app.post("/api/login.php", (req, res) => {
   );
 });
 
+
 // API: Регистрация
-app.post("/api/register.php", (req, res) => {
-  if (!db) {
-    sendJSON(
-      res,
-      { success: false, message: "База данных не инициализирована" },
-      503,
-    );
-    return;
-  }
+app.post("/api/register.php", async (req, res) => {
+    console.log("Пришли данные на регистрацию:", req.body);
 
-  const { email, password, repeatPassword, userType, name, phone, company } =
-    req.body;
+    const email = req.body.email;
+    const password = req.body.password;
+    const role = req.body.userType || req.body.role;
+    const extraData = req.body.extraData || {};
+    
+    // 🔥 ИСПРАВЛЕНИЕ: Правильно извлекаем имя
+    // Проверяем разные возможные пути
+    const name = extraData.name || req.body.name || "Пользователь";
+    const passportPath = extraData.passportData || null;
+    
+    console.log("Извлеченные данные:", { email, role, name, hasPassport: !!passportPath });
 
-  if (!email || !password || !repeatPassword || !userType) {
-    sendJSON(
-      res,
-      { success: false, message: "Заполните все обязательные поля" },
-      400,
-    );
-    return;
-  }
+    if (!email || !password || !role) {
+        console.log("ОШИБКА: Пропущены обязательные поля");
+        return res.status(400).json({ 
+            success: false, 
+            message: "Заполните все поля (email, пароль, роль)" 
+        });
+    }
 
-  if (!isValidEmail(email)) {
-    sendJSON(res, { success: false, message: "Введите корректный email" }, 400);
-    return;
-  }
-
-  if (password.length < 5) {
-    sendJSON(
-      res,
-      { success: false, message: "Пароль должен быть не менее 5 символов" },
-      400,
-    );
-    return;
-  }
-
-  if (password !== repeatPassword) {
-    sendJSON(res, { success: false, message: "Пароли не совпадают" }, 400);
-    return;
-  }
-
-  if (!["job_seeker", "employer"].includes(userType)) {
-    sendJSON(
-      res,
-      { success: false, message: "Неверный тип пользователя" },
-      400,
-    );
-    return;
-  }
-
-  const userName = name || email.split("@")[0];
-
-  // Проверяем, существует ли пользователь
-  db.get(
-    "SELECT id FROM users WHERE email = ?",
-    [email],
-    (err, existingUser) => {
-      if (err) {
-        console.error("Ошибка проверки пользователя:", err);
-        sendJSON(
-          res,
-          {
-            success: false,
-            message: "Ошибка при регистрации. Попробуйте позже.",
-          },
-          500,
-        );
-        return;
-      }
-
-      if (existingUser) {
-        sendJSON(
-          res,
-          {
-            success: false,
-            message: "Пользователь с таким email уже существует",
-          },
-          400,
-        );
-        return;
-      }
-
-      // Хешируем пароль
-      bcrypt.hash(password, 10, (err, hashedPassword) => {
-        if (err) {
-          console.error("Ошибка хеширования пароля:", err);
-          sendJSON(
-            res,
-            {
-              success: false,
-              message: "Ошибка при регистрации. Попробуйте позже.",
-            },
-            500,
-          );
-          return;
-        }
-
-        // Создаем пользователя
-        db.run(
-          "INSERT INTO users (email, password, name, role, phone, company, registered_at, last_login) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))",
-          [
-            email,
-            hashedPassword,
-            userName,
-            userType,
-            phone || null,
-            company || null,
-          ],
-          function (err) {
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // 🔥 ИСПРАВЛЕНИЕ: Сохраняем правильное имя
+        const sql = `INSERT INTO users (email, password, role, name, passport_path) VALUES (?, ?, ?, ?, ?)`;
+        
+        db.run(sql, [email, hashedPassword, role, name, passportPath], function(err) {
             if (err) {
-              console.error("Ошибка создания пользователя:", err);
-              sendJSON(
-                res,
-                {
-                  success: false,
-                  message: "Ошибка при регистрации. Попробуйте позже.",
-                },
-                500,
-              );
-              return;
-            }
-
-            const userId = this.lastID;
-
-            // Создаем сессию
-            req.session.user_id = userId;
-            req.session.user_email = email;
-            req.session.user_name = userName;
-            req.session.user_role = userType;
-            req.session.user_is_admin = false;
-            req.session.user_phone = phone || "";
-            req.session.user_company = company || "";
-
-            // Получаем данные созданного пользователя
-            db.get(
-              "SELECT id, email, name, role, phone, company, is_admin, registered_at FROM users WHERE id = ?",
-              [userId],
-              (err, user) => {
-                if (err || !user) {
-                  sendJSON(
-                    res,
-                    {
-                      success: false,
-                      message: "Ошибка при регистрации. Попробуйте позже.",
-                    },
-                    500,
-                  );
-                  return;
-                }
-
-                sendJSON(res, {
-                  success: true,
-                  message: "Регистрация успешна!",
-                  user: {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    role: user.role,
-                    isAdmin: user.is_admin === 1,
-                    phone: user.phone || "",
-                    company: user.company || "",
-                    registeredAt: user.registered_at,
-                  },
+                console.error("Ошибка БД:", err.message);
+                return res.status(400).json({ 
+                    success: false, 
+                    message: err.message 
                 });
-              },
+            }
+            
+            // Получаем данные только что созданного пользователя
+            db.get(
+                "SELECT id, email, name, role, phone, company, is_admin, passport_path, registered_at FROM users WHERE id = ?",
+                [this.lastID],
+                (err, user) => {
+                    if (err || !user) {
+                        return res.json({ success: true });
+                    }
+                    
+                    // Создаем сессию автоматически
+                    req.session.user_id = user.id;
+                    req.session.user_email = user.email;
+                    req.session.user_name = user.name;
+                    req.session.user_role = user.role;
+                    req.session.user_is_admin = user.is_admin === 1;
+                    
+                    console.log("Пользователь создан:", user);
+                    
+                    // Отправляем данные пользователя
+                    res.json({ 
+                        success: true,
+                        user: {
+                            id: user.id,
+                            email: user.email,
+                            name: user.name || "",
+                            role: user.role,
+                            isAdmin: user.is_admin === 1,
+                            phone: user.phone || "",
+                            company: user.company || "",
+                            registeredAt: user.registered_at
+                        }
+                    });
+                }
             );
-          },
-        );
-      });
-    },
-  );
+        });
+    } catch (e) {
+        console.error("Ошибка сервера:", e);
+        res.status(500).json({ 
+            success: false, 
+            message: "Ошибка сервера" 
+        });
+    }
 });
 
 // API: Выход
@@ -1209,3 +1126,6 @@ initDatabase()
     console.error("Ошибка инициализации БД:", err);
     process.exit(1);
   });
+
+
+

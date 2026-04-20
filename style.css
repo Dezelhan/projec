@@ -1248,6 +1248,7 @@ nav a.active::after {
     border-radius: 8px;
     backdrop-filter: blur(4px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    margin-top: 150px;
 }
 
 .contact-form h2 {
