@@ -515,7 +515,7 @@
 
     <header class="osnova-header">
         <div class="container">
-            <a href="index.html" class="logotip">SparkGig</a>
+            <a href="index.html" class="logotip">Podrabotka</a>
             <nav>
                 <a href="index.html">Главная</a>
                 <a href="jobs.html">Вакансии</a>
@@ -726,6 +726,7 @@
     </main>
 
 <script src="script.js"></script>
+<script src="script.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', async function() {
         console.log('Страница профиля загружена');
@@ -743,14 +744,32 @@
 
         console.log('Пользователь в профиле:', user);
         
+        // 🔥 Скрываем ненужные вкладки в зависимости от роли
+        const applicationsTab = document.querySelector('.profile-tab[onclick*="applications"]');
+        const applicationsMenuItem = document.querySelector('.profile-menu a[onclick*="applications"]');
+        
+        if (user.role === 'employer') {
+            // Для работодателя скрываем "Мои отклики"
+            if (applicationsTab) applicationsTab.style.display = 'none';
+            if (applicationsMenuItem) applicationsMenuItem.style.display = 'none';
+            
+            // Показываем ссылку на "Мои вакансии"
+            document.getElementById('employerJobsLinkProfile').style.display = 'flex';
+            
+            // Меняем текст роли
+            document.getElementById('profileUserRole').textContent = 'Работодатель';
+        } else {
+            // Для искателя работы показываем "Мои отклики"
+            if (applicationsTab) applicationsTab.style.display = 'block';
+            if (applicationsMenuItem) applicationsMenuItem.style.display = 'flex';
+            
+            // Меняем текст роли
+            document.getElementById('profileUserRole').textContent = 'Искатель работы';
+        }
+        
         // Загружаем информацию профиля
         await loadProfilePageInfo();
         
-        // Показываем ссылку для работодателей
-        if (user.role === 'employer') {
-            document.getElementById('employerJobsLinkProfile').style.display = 'flex';
-        }
-
         // Загружаем паспорт если есть
         const imgElement = document.getElementById('passportPreview');
         const noPassportText = document.getElementById('noPassportText');
@@ -770,22 +789,34 @@
     });
 
     function switchProfileTab(tabName) {
+        // Скрываем все вкладки
         document.querySelectorAll('.profile-tab-content').forEach(tab => {
             tab.classList.remove('active');
         });
 
-        document.getElementById(`tab-${tabName}`).classList.add('active');
+        // Показываем нужную вкладку
+        const targetTab = document.getElementById(`tab-${tabName}`);
+        if (targetTab) {
+            targetTab.classList.add('active');
+        }
 
+        // Убираем активный класс со всех кнопок вкладок
         document.querySelectorAll('.profile-tab').forEach(btn => {
             btn.classList.remove('active');
         });
         
-        // Активируем нужную вкладку
-        event.target.classList.add('active');
+        // Активируем нужную кнопку
+        const activeButton = Array.from(document.querySelectorAll('.profile-tab')).find(
+            btn => btn.getAttribute('onclick')?.includes(tabName)
+        );
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
 
+        // Обновляем активный пункт в боковом меню
         document.querySelectorAll('.profile-menu a').forEach(link => {
             link.classList.remove('active');
-            if (link.textContent.includes(getTabDisplayName(tabName))) {
+            if (link.getAttribute('onclick')?.includes(tabName)) {
                 link.classList.add('active');
             }
         });
@@ -852,6 +883,13 @@
 
     async function loadApplications() {
         console.log('loadApplications: начало загрузки откликов');
+        
+        const user = await getCurrentUser();
+        if (user.role === 'employer') {
+            console.log('Работодатель не может просматривать отклики');
+            return;
+        }
+        
         const applications = await getUserApplications();
         console.log('loadApplications: получено откликов', applications.length);
         const container = document.getElementById('applicationsList');

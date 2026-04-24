@@ -295,7 +295,7 @@
 
     <header class="osnova-header">
         <div class="container">
-            <a href="index.html" class="logotip">SparkGig</a>
+            <a href="index.html" class="logotip">Podrabotka</a>
             <nav>
                 <a href="index.html">Главная</a>
                 <a href="jobs.html">Вакансии</a>
@@ -376,14 +376,11 @@
 
             for (const job of jobs) {
                 const applicants = await getJobApplicants(job.id);
-                const statusClass = job.isActive ? 'status-active' : 'status-inactive';
-                const statusText = job.isActive ? 'Активна' : 'Неактивна';
 
                 html += `
                     <div class="job-card" data-job-id="${job.id}">
                         <div class="job-header">
                             <div class="job-title">${job.title}</div>
-                            <div class="job-status ${statusClass}">${statusText}</div>
                         </div>
 
                         <div class="job-details">
